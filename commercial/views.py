@@ -2,8 +2,10 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse,HttpResponseRedirect
 from django.urls import reverse
 from django.core.mail import send_mail
-from .models import SpecialOffer, Room, Style, CoffeeBreak, Reservation
-# Create your views here.
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from .models import SpecialOffer, Room, Style, CoffeeBreak, Reservation, ContactUs
+
 
 def index(request):
     return render(request,('index.html'))
@@ -46,49 +48,62 @@ def reservation(request):
         'coffee_breaks': coffee_breaks,
     }
     if request.method == 'POST':
-        event_space_1_id = request.POST['event_space_1']
-        event_space_2_id = request.POST['event_space_2']
+        event_room_id = request.POST['event_room']
+        event_style_id = request.POST['event_style']
         coffee_break_id = request.POST['coffee_break']
-        event_space_1 = request.POST.get('event_space_1')
-        event_space_2 = request.POST.get('event_space_2')
+        event_room = request.POST.get('event_room')
+        event_style = request.POST.get('event_style')
         coffee_break = request.POST.get('coffee_break')
         date_and_time = request.POST.get('date_and_time')
         number_of_attendees = request.POST.get('number_of_attendees')
-        firstName = request.POST.get('first_name')
-        lastName = request.POST.get('last_name')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         notes = request.POST.get('notes')
         email = request.POST.get('email')
-        phoneNumber = request.POST.get('phone_number')
-        event_space_1 = Room.objects.get(pk=event_space_1_id)
-        event_space_2 = Style.objects.get(pk=event_space_2_id)
+        phone_number = request.POST.get('phone_number')
+        event_room = Room.objects.get(pk=event_room_id)
+        event_style = Style.objects.get(pk=event_style_id)
         coffee_break = CoffeeBreak.objects.get(pk=coffee_break_id)
-        # Create a new reservation instance and save it
         reservation = Reservation(
-            event_space_1=event_space_1,
-            event_space_2=event_space_2,
+            event_room=event_room,
+            event_style=event_style,
             coffee_break=coffee_break,
             date_and_time=date_and_time,
             number_of_attendees=number_of_attendees,
             notes=notes,
             email=email,
-            phone_number=phoneNumber,
-            first_name=firstName,
-            last_name=lastName,
+            phone_number=phone_number,
+            first_name=first_name,
+            last_name=last_name,
         )
         reservation.save()
+        send_mail('Reservation Confirmation',
+                  render_to_string ('email.html', {'reservation': reservation}),
+                  'eaxample@email.com',     #your email
+            [request.POST.get('email')], fail_silently=False)
+        #do not forget to put your email&app password in settings.py
     return render(request, 'reservation.html',context)
 
 
-
-def send_reservation_email(user_email, reservation_data):
-    subject = 'Reservation Confirmation'
-    message = f'Thank you for your reservation. Here are the details:\n\n{reservation_data}'
-    from_email = 'settings.EMAIL_HOST_USER'  # Replace with your email
-    recipient_list = [user_email]
-
-    send_mail(subject, message, from_email, recipient_list)
-    
-    return render('reservation.html')
-
-# for the UserFavorite we shold do a urls so the user can go to it and view there favorite offer and have 
-# a button so he can click it and see if it is still available or not 
+def contactUs(request):
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        contactUs=ContactUs(
+            full_name=full_name,
+            email=email,
+            subject=subject,
+            message=message,
+            
+        )
+        contactUs.save()
+        send_mail('Message Confirmation',
+                  render_to_string ('contactMessage.html', {'contactUs': contactUs}),
+                  'eaxample@email.com',     #your email
+            [request.POST.get('email')], fail_silently=False)
+        #do not forget to put your email&app password in settings.py
+    return render(request, 'contactUs.html')
+        
+        

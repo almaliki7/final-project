@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import SpecialOffer, Room, Style, CoffeeBreak, Reservation, UserFavorite
+from .models import SpecialOffer, Room, Style, CoffeeBreak, Reservation, UserFavorite, ContactUs
 
-# Register your models here.
 
 
 
@@ -11,3 +10,4 @@ admin.site.register(Style)
 admin.site.register(CoffeeBreak)
 admin.site.register(Reservation)
 admin.site.register(UserFavorite)
+admin.site.register(ContactUs)

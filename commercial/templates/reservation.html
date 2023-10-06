@@ -8,8 +8,8 @@
 <body>
     <form method="post" action="{% url 'reservation' %}">
         {% csrf_token %}
-        <label for="event_space_1">Room:</label>
-    <select name="event_space_1">
+        <label for="event_room">Room:</label>
+    <select name="event_room">
         {% for room in rooms %}
             <option value="{{ room.id }}">{{ room.name }}</option>
         {% endfor %}
@@ -17,8 +17,8 @@
     <br>
     <form method="post" action="{% url 'reservation' %}">
         {% csrf_token %}
-        <label for="event_space_2">Style:</label>
-    <select name="event_space_2">
+        <label for="event_style">Style:</label>
+    <select name="event_style">
         {% for style in styles %}
             <option value="{{ style.id }}">{{ style.name }}</option>
         {% endfor %}
